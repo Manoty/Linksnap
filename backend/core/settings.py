@@ -1,4 +1,3 @@
-# core/settings.py
 # Central Django configuration. Uses python-decouple to read from .env
 # Structured for clarity and future splitting into dev/prod configs.
 
