@@ -6,6 +6,8 @@ from decouple import config, Csv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+AUTH_USER_MODEL = 'accounts.User'
+
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
@@ -71,9 +73,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='qejani_db'),
-        'USER': config('DB_USER', default='qejani_user'),
-        'PASSWORD': config('DB_PASSWORD', default='qejani_pass'),
+        'NAME': config('DB_NAME', default='linksnap_db'),
+        'USER': config('DB_USER', default='linksnap_user'),
+        'PASSWORD': config('DB_PASSWORD', default='linksnap_pass'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
@@ -121,7 +123,7 @@ SIMPLE_JWT = {
 
 # Swagger/OpenAPI
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Qejani URL Shortener API',
+    'TITLE': 'Linksnap URL Shortener API',
     'DESCRIPTION': 'Production-grade URL shortening platform',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
