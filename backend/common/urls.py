@@ -1,0 +1,8 @@
+# Shared/utility routes. Health check lives here.
+
+from django.urls import path
+from common.views import HealthCheckView
+
+urlpatterns = [
+    path('health/', HealthCheckView.as_view(), name='health-check'),
+]
