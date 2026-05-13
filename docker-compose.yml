@@ -1,0 +1,27 @@
+# docker-compose.yml
+# Runs PostgreSQL and Redis locally.
+# Django and React run natively for now (faster dev loop).
+
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: qejani_postgres
+    environment:
+      POSTGRES_DB: qejani_db
+      POSTGRES_USER: qejani_user
+      POSTGRES_PASSWORD: qejani_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: qejani_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
