@@ -4,6 +4,9 @@
 from pathlib import Path
 from decouple import config, Csv
 
+from celery.schedules import crontab
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -153,5 +156,31 @@ LOGGING = {
     'root': {
         'handlers': ['console'],
         'level': 'INFO',
+    },
+}
+
+# ── Celery ────────────────────────────────────────────────────────────────────
+# core/settings.py — append these lines
+
+
+CELERY_BROKER_URL        = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND    = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT    = ['json']
+CELERY_TASK_SERIALIZER   = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE          = 'UTC'
+
+# Task routing — analytics tasks go to a dedicated queue
+# so a surge of click events never blocks link management tasks
+CELERY_TASK_ROUTES = {
+    'analytics.tasks.record_click_task': {'queue': 'analytics'},
+    'links.tasks.*':                     {'queue': 'default'},
+}
+
+# Celery Beat — periodic task schedule
+CELERY_BEAT_SCHEDULE = {
+    'expire-links-every-5-minutes': {
+        'task':     'links.tasks.expire_links_task',
+        'schedule': crontab(minute='*/5'),  # runs every 5 minutes
     },
 }
