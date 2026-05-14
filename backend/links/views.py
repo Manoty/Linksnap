@@ -21,13 +21,14 @@ logger = logging.getLogger(__name__)
 class RedirectView(APIView):
     """
     GET /r/{short_code}/
-    The most performance-critical endpoint in the system.
-    Looks up the link, validates usability, logs the click, redirects.
+    Looks up the link, validates, records the click, redirects.
+    Click recording is sync now — moves to Celery task in Phase 5.
     """
     permission_classes = [AllowAny]
 
     def get(self, request, short_code: str):
         from django.http import HttpResponseRedirect
+        from analytics.services import AnalyticsService
 
         link = LinkService.get_link_by_code(short_code)
 
@@ -43,12 +44,12 @@ class RedirectView(APIView):
                 status=status.HTTP_410_GONE,
             )
 
-        # Increment click count — moves to async Celery task in Phase 5
+        # Record click — passes request for IP + user agent extraction
         LinkService.increment_click(link)
+        AnalyticsService.record_click(link, request)
 
         return HttpResponseRedirect(link.original_url)
-
-
+    
 # ── Authenticated: Link Management ───────────────────────────────────────────
 
 class LinkListCreateView(APIView):
