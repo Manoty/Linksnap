@@ -21,14 +21,17 @@ logger = logging.getLogger(__name__)
 class RedirectView(APIView):
     """
     GET /r/{short_code}/
-    Looks up the link, validates, records the click, redirects.
-    Click recording is sync now — moves to Celery task in Phase 5.
+    Returns 302 immediately. Click recording happens async via Celery.
+    The hot path is now: DB read → usability check → 302.
+    No analytics write on the critical path.
     """
     permission_classes = [AllowAny]
 
     def get(self, request, short_code: str):
         from django.http import HttpResponseRedirect
-        from analytics.services import AnalyticsService
+        from analytics.parsers import extract_ip
+        from analytics.tasks import record_click_task
+        from links.tasks import expire_links_task
 
         link = LinkService.get_link_by_code(short_code)
 
@@ -44,9 +47,16 @@ class RedirectView(APIView):
                 status=status.HTTP_410_GONE,
             )
 
-        # Record click — passes request for IP + user agent extraction
+        # Increment click counter (stays synchronous — it's a single UPDATE)
         LinkService.increment_click(link)
-        AnalyticsService.record_click(link, request)
+
+        # Dispatch analytics recording to Celery — non-blocking
+        record_click_task.delay(
+            link_id=str(link.id),
+            ip_address=extract_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            referrer=request.META.get('HTTP_REFERER', ''),
+        )
 
         return HttpResponseRedirect(link.original_url)
     
