@@ -13,6 +13,8 @@ urlpatterns = [
     path('api/', include('common.urls')),         # health check
     path('api/auth/', include('accounts.urls')),  # auth endpoints
     path('api/links/', include('links.urls')),     # link management
+    
+    path('r/<str:short_code>/', include('links.redirect_urls')),
 
     # OpenAPI schema + Swagger UI
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
