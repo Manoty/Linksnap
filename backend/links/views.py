@@ -13,6 +13,9 @@ from links.models import Link
 from links.serializers import LinkCreateSerializer, LinkSerializer, LinkUpdateSerializer
 from links.services import LinkService
 
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
+
 logger = logging.getLogger(__name__)
 
 
@@ -154,12 +157,15 @@ class LinkDetailView(APIView):
 
 
 # ── Anonymous shortening ──────────────────────────────────────────────────────
-
+@method_decorator(
+    ratelimit(key='ip', rate='10/h', method='POST', block=True),
+    name='dispatch',
+)
 class AnonymousLinkCreateView(APIView):
     """
     POST /api/links/shorten/
-    Anonymous users can shorten URLs. No auth, no custom alias, no expiry.
-    Rate limited in Phase 5.
+    Anonymous shortening. Rate limited to 10 requests/hour per IP.
+    Authenticated users are not rate limited here — they use /api/links/.
     """
     permission_classes = [AllowAny]
 
