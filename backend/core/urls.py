@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/', include('common.urls')),         # health check
     path('api/auth/', include('accounts.urls')),  # auth endpoints
     path('api/links/', include('links.urls')),     # link management
+    path('api/analytics/', include('analytics.urls')), # analytics endpoints
     
     path('r/<str:short_code>/', include('links.redirect_urls')),
 
