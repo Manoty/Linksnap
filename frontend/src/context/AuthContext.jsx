@@ -1,4 +1,3 @@
-// context/AuthContext.jsx
 // Global auth state. Wraps the whole app.
 // Any component can call useAuth() to get user + helpers.
 
