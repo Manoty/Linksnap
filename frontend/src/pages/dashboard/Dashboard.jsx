@@ -1,4 +1,4 @@
-// pages/dashboard/Dashboard.jsx
+
 // Shows total stats, 14-day click trend chart, top links, recent activity.
 
 import { useQuery }    from '@tanstack/react-query'

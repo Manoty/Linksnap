@@ -1,4 +1,3 @@
-// pages/analytics/LinkAnalytics.jsx
 // Per-link analytics: total clicks, device chart, daily trend, recent events.
 
 import { useParams, Link }  from 'react-router-dom'
